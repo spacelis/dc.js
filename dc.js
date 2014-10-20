@@ -1,5 +1,5 @@
 /*!
- *  dc 1.7.0
+ *  dc 1.7.1
  *  http://dc-js.github.io/dc.js/
  *  Copyright 2012 Nick Zhu and other contributors
  *
@@ -20,7 +20,7 @@
 'use strict';
 
 /**
-#### Version 1.7.0
+#### Version 1.7.1
 
 The entire dc.js library is scoped under **dc** name space. It does not introduce anything else into the global
 name space.
@@ -57,7 +57,7 @@ The API references will highlight the fact if a particular function is not chain
 
 **/
 var dc = {
-    version: "1.7.0",
+    version: "1.7.1",
     constants: {
         CHART_CLASS: "dc-chart",
         DEBUG_GROUP_CLASS: "debug",
@@ -3144,7 +3144,7 @@ dc.pieChart = function (parent, chartGroup) {
                 .attr("text-anchor", "middle")
                 .text(function (d) {
                     var data = d.data;
-                    if (sliceHasNoData(data) || sliceTooSmall(d))
+                    if ((sliceHasNoData(data) || sliceTooSmall(d)) && !_chart.isSelectedSlice(d))
                         return "";
                     return _chart.label()(d);
                 });
