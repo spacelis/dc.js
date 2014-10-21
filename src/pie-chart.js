@@ -171,8 +171,7 @@ dc.pieChart = function (parent, chartGroup) {
                 })
                 .attr("text-anchor", "middle")
                 .text(function (d) {
-                    var data = d.data;
-                    if (sliceHasNoData(data) || sliceTooSmall(d))
+                    if (isIgnoredLabel(d))
                         return "";
                     return _chart.label()(d);
                 });
@@ -200,6 +199,20 @@ dc.pieChart = function (parent, chartGroup) {
             });
     }
 
+    function isIgnoredLabel(d){
+      if (sliceHasNoData(d.data))
+        return true;
+      if (!_chart.hasFilter()){
+        if (sliceTooSmall(d)){
+          return true;
+        }
+        else
+          return false;
+      }
+      else
+        return !_chart.isSelectedSlice(d)
+    }
+
     function updateLabels(pieData, arc) {
         if (_chart.renderLabel()) {
             var labels = _g.selectAll("text." + _sliceCssClass)
@@ -217,8 +230,7 @@ dc.pieChart = function (parent, chartGroup) {
                 })
                 .attr("text-anchor", "middle")
                 .text(function (d) {
-                    var data = d.data;
-                    if ((sliceHasNoData(data) || sliceTooSmall(d)) && !_chart.isSelectedSlice(d))
+                    if (isIgnoredLabel(d))
                         return "";
                     return _chart.label()(d);
                 });
@@ -302,7 +314,16 @@ dc.pieChart = function (parent, chartGroup) {
     };
 
     _chart.isSelectedSlice = function (d) {
-        return _chart.hasFilter(_chart.keyAccessor()(d.data));
+      if (d.data && d.data.others){
+        return d.data.others
+          .map(function(sd){
+            return _chart.hasFilter(_chart.keyAccessor()({key: sd}))
+          })
+          .reduce(function(p, c){
+            return p || c
+          }, false);
+      }
+      return _chart.hasFilter(_chart.keyAccessor()(d.data));
     };
 
     _chart.doRedraw = function () {
